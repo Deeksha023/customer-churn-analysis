@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Churn Prediction | Machine Learning Dashboard</title>
+  <meta name="description" content="Predict customer churn risk using Machine Learning. Real-time inference powered by Random Forest Classifier.">
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="top-navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">ChurnGuard AI</span>
+          <span class="brand-badge">ML Studio</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#dashboard" class="nav-link active" id="nav-btn-dashboard">Dashboard</a>
+        <a href="#prediction" class="nav-link" id="nav-btn-prediction">Prediction</a>
+        <a href="#analytics" class="nav-link" id="nav-btn-analytics">Analytics</a>
+        <a href="#history" class="nav-link" id="nav-btn-history">History</a>
+        <a href="#about" class="nav-link" id="nav-btn-about">About</a>
+      </nav>
+
+      <div class="nav-status">
+        <span class="status-indicator"></span>
+        <span class="status-text">Model Active: Random Forest</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero-section">
+    <div class="container hero-content">
+      <div class="hero-tag">Enterprise Machine Learning</div>
+      <h1 class="hero-title">Customer Churn Prediction</h1>
+      <p class="hero-subtitle">Predict customer churn risk using Machine Learning and deploy targeted retention strategies</p>
+      
+      <div class="hero-actions">
+        <a href="#prediction" class="btn btn-primary" id="hero-cta-predict">
+          <span>Make a Prediction</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+        <a href="#analytics" class="btn btn-secondary" id="hero-cta-analytics">Explore Dataset Insights</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="container main-content">
+
+    <!-- ================================================================ -->
+    <!-- SECTION 1: DASHBOARD OVERVIEW -->
+    <!-- ================================================================ -->
+    <section id="dashboard" class="content-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Executive Dashboard</h2>
+          <p class="section-desc">Key metrics calculated directly from the Telco Customer Churn dataset</p>
+        </div>
+        <span class="dataset-source-tag">Source: WA_Fn-UseC_-Telco-Customer-Churn.csv</span>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card" id="kpi-total">
+          <div class="kpi-icon icon-blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total Customers</span>
+            <span class="kpi-value" id="val-total-customers">7,043</span>
+            <span class="kpi-sub">Total records in dataset</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-retained">
+          <div class="kpi-icon icon-green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Retained Customers</span>
+            <span class="kpi-value" id="val-retained-customers">5,174</span>
+            <span class="kpi-sub" id="val-retained-rate">73.46% retention rate</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-churned">
+          <div class="kpi-icon icon-red">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Churned Customers</span>
+            <span class="kpi-value" id="val-churned-customers">1,869</span>
+            <span class="kpi-sub">Customers who cancelled</span>
+          </div>
+        </div>
+
+        <div class="kpi-card" id="kpi-rate">
+          <div class="kpi-icon icon-amber">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Overall Churn Rate</span>
+            <span class="kpi-value" id="val-overall-churn-rate">26.54%</span>
+            <span class="kpi-sub">Baseline attrition rate</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Problem Context Card -->
+      <div class="dashboard-banner">
+        <div class="banner-icon">💡</div>
+        <div class="banner-body">
+          <h3>Why Customer Churn Prediction Matters</h3>
+          <p>
+            Acquiring a new telecommunications subscriber costs up to <strong>5x more</strong> than retaining an existing customer.
+            By identifying subscribers with high attrition probability early, customer success teams can deliver tailored retention
+            discounts, contract upgrade incentives, and proactive technical support to minimize loss of recurring revenue.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SECTION 2: PREDICTION FORM & RESULT -->
+    <!-- ================================================================ -->
+    <section id="prediction" class="content-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Interactive Churn Prediction</h2>
+          <p class="section-desc">Enter customer attributes to compute real-time churn risk using the Random Forest model</p>
+        </div>
+        
+        <!-- Preset Loaders -->
+        <div class="preset-buttons">
+          <button type="button" class="btn-preset btn-preset-high" id="btn-load-high-risk">
+            ⚡ Load High-Risk Sample
+          </button>
+          <button type="button" class="btn-preset btn-preset-low" id="btn-load-low-risk">
+            🛡️ Load Low-Risk Sample
+          </button>
+          <button type="button" class="btn-preset btn-preset-reset" id="btn-reset-form">
+            🔄 Reset
+          </button>
+        </div>
+      </div>
+
+      <div class="prediction-grid">
+        <!-- Input Form Card -->
+        <div class="form-card">
+          <form id="churn-prediction-form">
+            
+            <!-- Group 1: Demographics -->
+            <div class="form-group-box">
+              <div class="group-title">
+                <span class="group-badge">1</span>
+                <span>Demographics & Account</span>
+              </div>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="input-gender">Gender</label>
+                  <select id="input-gender" name="gender" class="form-control">
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-senior">Senior Citizen</label>
+                  <select id="input-senior" name="SeniorCitizen" class="form-control">
+                    <option value="0">No (Under 65)</option>
+                    <option value="1">Yes (65+)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="input-partner">Partner</label>
+                  <select id="input-partner" name="Partner" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-dependents">Dependents</label>
+                  <select id="input-dependents" name="Dependents" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 2: Contract & Billing -->
+            <div class="form-group-box">
+              <div class="group-title">
+                <span class="group-badge">2</span>
+                <span>Contract & Billing Details</span>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="input-contract">Contract Type</label>
+                  <select id="input-contract" name="Contract" class="form-control highlight-field">
+                    <option value="Month-to-month">Month-to-month (Flexible)</option>
+                    <option value="One year">One year</option>
+                    <option value="Two year">Two year (Long-term)</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-tenure">Tenure: <strong id="tenure-display">12</strong> Months</label>
+                  <div class="slider-wrapper">
+                    <input type="range" id="input-tenure" name="tenure" min="1" max="72" value="12" class="form-range">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="input-monthly-charges">Monthly Charges ($)</label>
+                  <input type="number" id="input-monthly-charges" name="MonthlyCharges" min="18.0" max="130.0" step="0.5" value="75.0" class="form-control">
+                </div>
+                <div class="form-field">
+                  <label for="input-total-charges">Total Charges ($) <span class="label-helper" id="btn-sync-total">(Auto-sync)</span></label>
+                  <input type="number" id="input-total-charges" name="TotalCharges" min="0" step="1.0" value="900.0" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="input-payment-method">Payment Method</label>
+                  <select id="input-payment-method" name="PaymentMethod" class="form-control">
+                    <option value="Electronic check">Electronic check</option>
+                    <option value="Mailed check">Mailed check</option>
+                    <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+                    <option value="Credit card (automatic)">Credit card (automatic)</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-paperless">Paperless Billing</label>
+                  <select id="input-paperless" name="PaperlessBilling" class="form-control">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 3: Phone & Internet Connectivity -->
+            <div class="form-group-box">
+              <div class="group-title">
+                <span class="group-badge">3</span>
+                <span>Connectivity Services</span>
+              </div>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="input-phone">Phone Service</label>
+                  <select id="input-phone" name="PhoneService" class="form-control">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-multilines">Multiple Lines</label>
+                  <select id="input-multilines" name="MultipleLines" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No phone service">No phone service</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-internet">Internet Service</label>
+                  <select id="input-internet" name="InternetService" class="form-control highlight-field">
+                    <option value="Fiber optic">Fiber optic (High Speed)</option>
+                    <option value="DSL">DSL</option>
+                    <option value="No">No Internet</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 4: Value-Add Services -->
+            <div class="form-group-box">
+              <div class="group-title">
+                <span class="group-badge">4</span>
+                <span>Value-Add & Support Services</span>
+              </div>
+              <div class="form-row form-row-3">
+                <div class="form-field">
+                  <label for="input-online-security">Online Security</label>
+                  <select id="input-online-security" name="OnlineSecurity" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet service</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-online-backup">Online Backup</label>
+                  <select id="input-online-backup" name="OnlineBackup" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet service</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-device-protection">Device Protection</label>
+                  <select id="input-device-protection" name="DeviceProtection" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet service</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row form-row-3">
+                <div class="form-field">
+                  <label for="input-tech-support">Tech Support</label>
+                  <select id="input-tech-support" name="TechSupport" class="form-control highlight-field">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet service</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-streaming-tv">Streaming TV</label>
+                  <select id="input-streaming-tv" name="StreamingTV" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet service</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="input-streaming-movies">Streaming Movies</label>
+                  <select id="input-streaming-movies" name="StreamingMovies" class="form-control">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No internet service">No internet service</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-predict-action" id="btn-predict-churn">
+              <span class="btn-text">PREDICT CHURN</span>
+              <span class="spinner" id="predict-spinner"></span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Result Card Column -->
+        <div class="result-column">
+          <!-- Initial Placeholder Card -->
+          <div class="result-placeholder-card" id="result-placeholder">
+            <div class="placeholder-graphic">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+              </svg>
+            </div>
+            <h3>Ready for Prediction</h3>
+            <p>Fill out the customer information or load a sample profile, then click <strong>"PREDICT CHURN"</strong> to evaluate risk.</p>
+            <div class="threshold-legend">
+              <span class="thresh-pill thresh-low">0-30% Low</span>
+              <span class="thresh-pill thresh-med">30-60% Medium</span>
+              <span class="thresh-pill thresh-high">60-100% High</span>
+            </div>
+          </div>
+
+          <!-- Active Result Card (Hidden until prediction) -->
+          <div class="result-card" id="result-card" style="display: none;">
+            <div class="result-header">
+              <span class="result-kicker">CUSTOMER CHURN RESULT</span>
+              <div class="risk-badge" id="res-risk-badge">HIGH RISK</div>
+            </div>
+
+            <!-- Main Prediction Title -->
+            <div class="result-prediction-title" id="res-prediction-label">
+              HIGH RISK - CUSTOMER MAY CHURN
+            </div>
+
+            <!-- Probability Gauge / Bar -->
+            <div class="probability-block">
+              <div class="prob-header">
+                <span class="prob-label">Churn Probability</span>
+                <span class="prob-number" id="res-prob-percent">68.17%</span>
+              </div>
+              <div class="prob-bar-track">
+                <div class="prob-bar-fill" id="res-prob-bar" style="width: 68%;"></div>
+              </div>
+              <div class="prob-scale">
+                <span>0% Safe</span>
+                <span>30% Threshold</span>
+                <span>60% High</span>
+                <span>100% Churn</span>
+              </div>
+            </div>
+
+            <!-- Risk Explanation -->
+            <div class="result-section">
+              <h4 class="result-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Why this customer is evaluated at this risk level:
+              </h4>
+              <ul class="factors-list" id="res-factors-list">
+                <!-- Dynamically populated -->
+              </ul>
+            </div>
+
+            <!-- Recommended Actions -->
+            <div class="result-section">
+              <h4 class="result-section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                Recommended Business Actions:
+              </h4>
+              <ul class="actions-list" id="res-actions-list">
+                <!-- Dynamically populated -->
+              </ul>
+            </div>
+
+            <!-- Model Verification Footer -->
+            <div class="result-footer">
+              <span class="model-badge">Engine: models/random_forest_model.joblib</span>
+              <span class="timestamp-badge" id="res-timestamp">Just now</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SECTION 3: PREDICTION HISTORY -->
+    <!-- ================================================================ -->
+    <section id="history" class="content-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Prediction History</h2>
+          <p class="section-desc">Local session log of customer predictions evaluated during this session</p>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-history">
+          Clear History
+        </button>
+      </div>
+
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="history-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Contract & Tenure</th>
+                <th>Monthly Bill</th>
+                <th>Churn Probability</th>
+                <th>Risk Level</th>
+                <th>Prediction Outcome</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <!-- Populated dynamically via JS -->
+              <tr class="empty-row" id="empty-history-row">
+                <td colspan="6">No predictions evaluated yet. Use the prediction form above to score customer profiles.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SECTION 4: DATA ANALYTICS & VISUALIZATIONS -->
+    <!-- ================================================================ -->
+    <section id="analytics" class="content-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Dataset Visualizations & Insights</h2>
+          <p class="section-desc">Direct statistical analysis calculated from 7,043 customer records in the Telco dataset</p>
+        </div>
+        <span class="dataset-source-tag">Chart.js Visualizations</span>
+      </div>
+
+      <!-- 4 Core Charts Grid -->
+      <div class="charts-grid">
+        <!-- Chart 1: Contract -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>1. Churn by Contract Type</h3>
+            <span class="chart-insight">Month-to-month contracts exhibit 42.7% churn</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-contract"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Internet Service -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>2. Churn by Internet Service</h3>
+            <span class="chart-insight">Fiber optic users experience higher attrition</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-internet"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 3: Tenure Cohorts -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>3. Churn by Tenure Cohort</h3>
+            <span class="chart-insight">47.4% churn rate during the first 12 months</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-tenure"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 4: Payment Method -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>4. Churn by Payment Method</h3>
+            <span class="chart-insight">Electronic check users show 45.3% churn</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="chart-payment"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Machine Learning Model Comparison Table -->
+      <div class="model-comparison-box">
+        <h3 class="comparison-title">Model Performance Comparison (Project Results)</h3>
+        <p class="comparison-desc">Evaluated on the 20% unseen test set (1,409 customers) with stratified sampling:</p>
+        
+        <div class="table-responsive">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Type</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="active-model-row">
+                <td><strong>Random Forest Classifier</strong></td>
+                <td>Ensemble (100 Trees)</td>
+                <td>80.55%</td>
+                <td>0.66</td>
+                <td>0.54</td>
+                <td>0.59</td>
+                <td><span class="badge-active">Active Production Model</span></td>
+              </tr>
+              <tr>
+                <td><strong>Logistic Regression</strong></td>
+                <td>Linear Classification</td>
+                <td>80.34%</td>
+                <td>0.65</td>
+                <td>0.54</td>
+                <td>0.59</td>
+                <td><span class="badge-bench">Benchmarked</span></td>
+              </tr>
+              <tr>
+                <td><strong>Decision Tree Classifier</strong></td>
+                <td>Tree-based (depth=4)</td>
+                <td>79.13%</td>
+                <td>0.62</td>
+                <td>0.51</td>
+                <td>0.56</td>
+                <td><span class="badge-bench">Benchmarked</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- SECTION 5: ABOUT -->
+    <!-- ================================================================ -->
+    <section id="about" class="content-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">About this Project</h2>
+          <p class="section-desc">Architecture, Machine Learning methodology, and dataset specifications</p>
+        </div>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="about-icon">🎯</div>
+          <h3>Project Objective</h3>
+          <p>
+            The objective of <strong>Customer Churn Analysis and Prediction</strong> is to build, evaluate, and deploy
+            supervised machine learning models to accurately detect customer churn before it occurs. Early detection enables
+            subscription providers to optimize customer lifetime value (CLV) and stabilize recurring annual revenues.
+          </p>
+        </div>
+
+        <div class="about-card">
+          <div class="about-icon">🤖</div>
+          <h3>Algorithms Used</h3>
+          <ul class="about-list">
+            <li><strong>Random Forest Classifier</strong>: Active production model utilizing 100 bootstrapped decision trees to deliver balanced, low-variance probability predictions.</li>
+            <li><strong>Logistic Regression</strong>: Linear probabilistic baseline model calibrated using the Sigmoid activation function.</li>
+            <li><strong>Decision Tree Classifier</strong>: Rule-based hierarchical classification constrained to depth 4 to prevent overfitting.</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <div class="about-icon">📊</div>
+          <h3>Dataset Details</h3>
+          <ul class="about-list">
+            <li><strong>Name</strong>: Telco Customer Churn (IBM Cognos Analytics)</li>
+            <li><strong>Records</strong>: 7,043 customer accounts</li>
+            <li><strong>Features</strong>: 20 attributes spanning demographics, account services, and billing</li>
+            <li><strong>Class Distribution</strong>: 5,174 Retained (73.46%) vs 1,869 Churned (26.54%)</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <div class="about-icon">⚙️</div>
+          <h3>Machine Learning Approach</h3>
+          <ul class="about-list">
+            <li><strong>Data Cleaning</strong>: Converted TotalCharges from string to float, handled 11 missing zero-tenure values, removed non-predictive customerID.</li>
+            <li><strong>Encoding</strong>: One-Hot Encoding via dummy variables (`drop_first=True`) creating 30 mathematical input features.</li>
+            <li><strong>Evaluation</strong>: Stratified 80/20 train-test split, Confusion Matrix, Classification Report, and ROC-AUC curves.</li>
+            <li><strong>Persistence</strong>: Serialized with `joblib` into `models/` for sub-millisecond inference in FastAPI.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <strong>Customer Churn Prediction</strong> • End-to-End Machine Learning System
+      </div>
+      <div class="footer-right">
+        <span>Powered by FastAPI & Scikit-Learn</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Frontend Javascript -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

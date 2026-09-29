@@ -1,144 +1,233 @@
 # Customer Churn Analysis and Prediction
+### An End-to-End Interactive Machine Learning Project & Web Application
 
-A beginner-friendly, end-to-end Machine Learning project to analyze customer behavior and predict whether a customer will churn or not.
+A professional, beginner-friendly Machine Learning application to analyze customer behavior, visualize dataset patterns, and predict in real-time whether a subscriber is likely to churn or remain with the company.
 
 ---
 
 ## 🎯 Objective
-The primary objective of this project is to build and evaluate classification machine learning models to predict **Customer Churn** (`Yes` or `No`). By identifying at-risk customers early, subscription businesses (such as telecommunications and internet providers) can deploy targeted retention strategies, customer support, and tailored discounts to reduce customer attrition.
+
+The primary objective of this project is to build, evaluate, and deploy classification machine learning models that predict **Customer Churn** (`Yes` or `No`). By proactively identifying at-risk customers, subscription businesses (such as telecommunications, internet, and SaaS providers) can deploy targeted retention strategies, customer support, and tailored renewal incentives to reduce churn and protect recurring revenue.
+
+---
+
+## ✨ Features
+
+- **Interactive Modern Web Dashboard**: Built with **FastAPI**, **Vanilla CSS**, and **Chart.js**, featuring dark mode, glassmorphism, responsive cards, and dynamic visual indicators.
+- **Real-Time ML Inference**: Instant scoring using the pre-trained **Random Forest Classifier** (`models/random_forest_model.joblib`) with probability gauges and risk badges (Low, Medium, High).
+- **Configurable Risk Thresholds**:
+  - `0% - 30%`: **Low Risk** (Customer likely retained)
+  - `30% - 60%`: **Medium Risk** (Monitoring & attention recommended)
+  - `60% - 100%`: **High Risk** (Customer may churn)
+- **Dataset Visualizations & Analytics**: Interactive charts rendered directly from the 7,043 customer records in the dataset:
+  1. Churn by Contract Type
+  2. Churn by Internet Service
+  3. Churn by Tenure Cohort
+  4. Churn by Payment Method
+- **Customer Risk Explanations**: Evidence-based factors derived from the customer's specific attributes and historical project findings.
+- **Actionable Business Recommendations**: Separated retention strategies tailored to the calculated risk tier.
+- **Prediction History Log**: Local session table tracking past predictions with timestamp, probability, risk level, and a "Clear History" button.
+- **1-Click Profile Presets**: Test high-risk and low-risk customer profiles with a single click.
+- **Dual Inference Modes**: Run either via the interactive web dashboard or the command-line script (`python predict.py`).
+
+---
+
+## 💻 Technologies Used
+
+| Technology | Category | Purpose |
+| :--- | :--- | :--- |
+| **Python 3.10+** | Programming Language | Core backend and machine learning pipelines |
+| **FastAPI** | Web Framework | Lightweight, high-performance async REST API and file server |
+| **Uvicorn** | ASGI Server | Production-ready web server |
+| **Scikit-learn** | Machine Learning | Feature preprocessing, scaling, and classification modeling |
+| **Pandas & NumPy** | Data Analysis | Data manipulation, cleaning, and tabular encoding |
+| **Joblib** | Model Persistence | Serialization and loading of trained models and metadata |
+| **HTML5 & Vanilla CSS** | Frontend | Responsive dashboard, glassmorphic cards, modern typography |
+| **Vanilla JavaScript** | Frontend Logic | API communication, form handling, and local storage |
+| **Chart.js** | Data Visualization | Interactive animated charts for exploratory dataset analytics |
+| **Matplotlib & Seaborn** | Exploratory Analysis | Offline visualization and statistical heatmaps in notebook |
 
 ---
 
 ## 📊 Dataset
+
 - **Dataset Name**: Telco Customer Churn (`WA_Fn-UseC_-Telco-Customer-Churn.csv`)
 - **Location**: `data/WA_Fn-UseC_-Telco-Customer-Churn.csv`
 - **Total Records (Rows)**: 7,043 customers
-- **Total Attributes (Columns)**: 21 (reduced to 20 after removing `customerID`)
+- **Total Attributes (Columns)**: 21 (reduced to 20 after dropping arbitrary `customerID`)
 - **Target Column**: `Churn`
-  - `Yes` = Customer churned (1)
-  - `No` = Customer remained with the company (0)
-- **Class Balance**: 
-  - Retained: 5,174 customers (73.46%)
-  - Churned: 1,869 customers (26.54%)
+  - `Yes` = Customer churned (1) — 1,869 customers (26.54%)
+  - `No` = Customer retained (0) — 5,174 customers (73.46%)
 
 ---
 
-## 💻 Technologies
-- **Python**: Core programming language
-- **Jupyter Notebook**: Interactive analysis and visualization environment
-- **NumPy**: Numerical operations and array manipulation
-- **Pandas**: Tabular data manipulation, cleaning, and preprocessing
-- **Matplotlib**: Core plotting and dashboard visualizations
-- **Seaborn**: Statistical charts (heatmaps, countplots, KDE, boxplots)
-- **Scikit-learn**: Data preprocessing, feature scaling, model training, evaluation metrics, and clustering
-- **Joblib**: Model serialization and persistence to disk
+## 🤖 Machine Learning Algorithms
+
+1. **Random Forest Classifier (Active Production Model)**:
+   - **Type**: Ensemble of 100 bootstrapped Decision Trees (`RandomForestClassifier(n_estimators=100)`).
+   - **Why use it?** Combines bagging and random feature subsets to drastically reduce variance and prevent overfitting.
+   - **Performance**: **80.55% Accuracy**, 0.66 Precision, 0.54 Recall, 0.59 F1-score.
+   - **Persistence**: Saved in `models/random_forest_model.joblib`.
+
+2. **Logistic Regression (Benchmarked Baseline)**:
+   - **Type**: Linear probabilistic classification using Sigmoid activation $\sigma(z) = \frac{1}{1 + e^{-z}}$.
+   - **Performance**: **80.34% Accuracy**, 0.65 Precision, 0.54 Recall, 0.59 F1-score.
+   - **Persistence**: Saved in `models/logistic_regression_model.joblib`.
+
+3. **Decision Tree Classifier (Benchmarked Rule-Based Model)**:
+   - **Type**: Non-parametric tree splitting constrained to `max_depth = 4` to prevent memorization.
+   - **Performance**: **79.13% Accuracy**, 0.62 Precision, 0.51 Recall, 0.56 F1-score.
 
 ---
 
-## 🤖 Algorithms Used
+## 📁 Project Structure
 
-### 1. Logistic Regression
-- **What is it?** A linear probabilistic classification model.
-- **Why use it?** Fast, transparent, and outputs calibrated probabilities using the Sigmoid activation function.
-- **How it works?** Computes $z = w^T x + b$ and passes it through $\sigma(z) = \frac{1}{1 + e^{-z}}$. If probability $\ge 0.5$, it predicts churn.
-- **Problem Type**: Binary Classification.
-
-### 2. Decision Tree Classifier
-- **What is it?** A non-parametric supervised learning algorithm that creates hierarchical if-else decision rules.
-- **Why use it?** Captures non-linear relationships, intuitive rule-based interpretability, invariant to feature scaling.
-- **How it works?** Recursively splits features to minimize Gini Impurity ($1 - \sum p_i^2$). Constrained to `max_depth = 4` to prevent overfitting.
-- **Problem Type**: Classification & Regression.
-
-### 3. Random Forest Classifier
-- **What is it?** An ensemble of 100 Decision Trees.
-- **Why use it?** Drastically reduces the high variance and overfitting of single decision trees.
-- **How it works?** Combines **Bagging** (Bootstrap Aggregating) with **Random Feature Subsets** ($\sqrt{p}$). Each tree votes and the majority vote decides the final prediction.
-- **Problem Type**: Tabular Classification & Regression.
-
-### 4. Optional: K-Means Clustering (Unsupervised Learning)
-- **What is it?** An unsupervised clustering algorithm.
-- **Why use it?** Groups customers into behavioral segments (`tenure`, `MonthlyCharges`, `TotalCharges`) without using target labels.
-- **How it works?** Identifies optimal $k = 3$ using the **Elbow Method** and iteratively assigns points to nearest cluster centroids.
-
----
-
-## 🔄 Project Workflow
-The Jupyter Notebook is organized into **27 clear, beginner-friendly sections**:
-
-1. **Import Libraries**: Load essential Python packages.
-2. **Load Dataset**: Read the CSV dataset into a Pandas DataFrame.
-3. **Understand Dataset**: Inspect `.shape`, `.info()`, and `.describe()`.
-4. **Data Cleaning**: Check duplicates (0 found), convert `TotalCharges` from string to float, fill 11 zero-tenure records with `0.0`, drop `customerID`.
-5. **Missing Values**: Verify that 0 missing values remain across all columns.
-6. **Exploratory Data Analysis (EDA)**: Calculate churn counts and percentages.
-7. **Data Visualization**: 6 clear plots (Churn distribution, Churn by gender, Churn by contract, Churn by internet service, Churn by tenure, Churn by monthly charges).
-8. **Correlation Heatmap**: Pearson correlation between numeric features and churn.
-9. **Encode Categorical Data**: One-hot encode features using `pd.get_dummies(..., drop_first=True, dtype=int)` and map `Churn` to 0/1.
-10. **Define X and y**: Separate features ($X$) and target ($y$).
-11. **Train-Test Split**: Stratified 80% train and 20% test split (`test_size=0.20, random_state=42, stratify=y`).
-12. **Feature Scaling**: Standardize numerical features using `StandardScaler` (fit strictly on train).
-13. **Logistic Regression**: Train, predict, and evaluate model 1.
-14. **Decision Tree**: Train, predict, and evaluate model 2 with `max_depth = 4`.
-15. **Random Forest**: Train, predict, and evaluate model 3 with 100 trees.
-16. **Model Predictions**: Side-by-side table comparing actual vs predicted labels for test samples.
-17. **Confusion Matrix**: Annotated heatmaps showing TP, TN, FP, FN for all models.
-18. **Accuracy, Precision, Recall and F1 Score**: Define and compute the 4 core metrics.
-19. **Classification Report**: Full per-class precision, recall, and f1-score reports.
-20. **Model Comparison**: Consolidated comparison DataFrame and grouped bar chart.
-21. **Feature Importance**: Random Forest Gini importances bar chart highlighting top churn drivers.
-22. **Overfitting and Underfitting**: Decision Tree `max_depth` (1 to 15) train vs test curve demonstration.
-23. **Gradient Descent Explanation**: Beginner analogy + relation to Logistic Regression + mathematical demonstration.
-24. **Save and Load Models**: Serialize models with `joblib.dump()` and run real-time inference with `joblib.load()`.
-25. **Optional K-Means Customer Segmentation**: Elbow curve and 3 customer personas.
-26. **ML Concepts Used**: Complete mapping table covering all 26+ concepts.
-27. **Final Conclusion**: Technical summary and business recommendations.
+```text
+customer_churn_analysis/
+│
+├── app.py                            # FastAPI backend application & API endpoints
+├── predict.py                        # Standalone CLI inference script
+├── requirements.txt                  # Python dependencies
+├── build_full_notebook.py            # Automated notebook generation script
+├── Customer_Churn_Analysis.ipynb     # Complete 27-section Jupyter Notebook
+├── README.md                         # Project documentation
+│
+├── data/
+│   └── WA_Fn-UseC_-Telco-Customer-Churn.csv   # Historical dataset (7,043 rows)
+│
+├── models/
+│   ├── random_forest_model.joblib    # Trained Random Forest classifier (100 trees)
+│   ├── logistic_regression_model.joblib # Trained Logistic Regression model
+│   ├── model_columns.joblib          # List of 30 exact one-hot encoded feature names
+│   └── scaler.joblib                 # StandardScaler fitted on numerical features
+│
+└── static/
+    ├── index.html                    # Single-page web dashboard
+    ├── style.css                     # Modern dark-mode glassmorphic styling
+    └── app.js                        # Client-side validation, Chart.js, & API integration
+```
 
 ---
 
-## 📈 Results & Model Comparison
+## 🚀 Installation & Setup
 
-Evaluated on the unseen test set of **1,409 customers**:
+### 1. Clone or Open the Repository
+```bash
+cd c:\customer_churn_analysis
+```
 
-| Model | Accuracy | Precision | Recall | F1 Score |
-|---|---|---|---|---|
-| **Logistic Regression** | **80.41%** | 65.64% | **53.74%** | **59.10%** |
-| **Decision Tree (depth=4)** | 79.56% | **66.81%** | 41.71% | 51.35% |
-| **Random Forest (100 trees)** | **80.06%** | 65.73% | 50.53% | **57.14%** |
-
-### Top Churn Drivers (Feature Importance):
-1. **`tenure` (20.3%)**: Short-tenure customers in their first 1-10 months churn at the highest rates.
-2. **`TotalCharges` (14.5%) & `MonthlyCharges` (9.4%)**: High monthly bills strongly incentivize customers to leave.
-3. **`InternetService_Fiber optic` (9.7%)**: Fiber customers experience higher churn rates.
-4. **`Contract_Two year` (8.2%)**: Multi-year contracts are the strongest protective factor against churn.
-5. **`PaymentMethod_Electronic check` (6.0%)**: Associated with higher churn compared to automatic payment methods.
-
----
-
-## 🚀 How to Run the Project
-
-### 1. Install Dependencies
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Run the Jupyter Notebook
-Open and run all cells in [`Customer_Churn_Analysis.ipynb`](file:///c:/customer_churn_analysis/Customer_Churn_Analysis.ipynb):
-```bash
-jupyter notebook Customer_Churn_Analysis.ipynb
-```
-*(All 27 sections are pre-computed with pre-rendered plots and tables!)*
+---
 
-### 3. Run Real-Time CLI Inference
-Test the trained model on sample customer profiles from the command line:
+## 🖥️ How to Run
+
+### Option A: Launch the Web Dashboard (Recommended)
+
+Start the web application server:
 ```bash
-python predict.py
+python app.py
+```
+*Alternatively, start using Uvicorn directly:*
+```bash
+uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Open your browser and navigate to:
+```text
+http://127.0.0.1:8000
 ```
 
 ---
 
-## 💡 Conclusion & Business Takeaways
+### Option B: Run Command-Line Inference (CLI)
 
-1. **Incentivize 1-Year and 2-Year Contracts**: Month-to-month contracts have the highest churn rate (~43%). Offering a 10-15% discount for annual commitments will directly stabilize revenue.
-2. **First-Year Onboarding Focus**: Churn is heavily concentrated in the first 10 months. Introducing proactive onboarding check-ins during the first 90 days will reduce customer attrition.
-3. **Bundle Value-Added Services**: Customers with `OnlineSecurity` and `TechSupport` have much higher retention. Bundling these into standard packages increases customer stickiness.
-4. **Targeted Campaigns on High-Spend At-Risk Customers**: Customer segmentation (Cluster 1) identifies high-spending, short-tenure customers who need proactive loyalty discounts before they switch to competitors.
+Test the pre-trained model directly from your terminal:
+```bash
+python predict.py
+```
+
+**Sample Output:**
+```text
+=================================================================
+      CUSTOMER CHURN PREDICTION - REAL-TIME INFERENCE DEMO      
+=================================================================
+
+[1] Loading trained model artifacts from 'models/'...
+    -> Successfully loaded Random Forest Classifier.
+    -> Total input features expected: 30
+
+[2] Evaluating Sample Customer Profiles:
+-----------------------------------------------------------------
+PROFILE A: New Customer on Month-to-Month Plan ($95.00/mo, Fiber Optic)
+  -> Prediction:        Yes (Churn)
+  -> Churn Probability: 68.17%
+  -> Risk Level:        High
+-----------------------------------------------------------------
+PROFILE B: Loyal Customer on 2-Year Contract ($45.00/mo, Tech Support)
+  -> Prediction:        No (Retained)
+  -> Churn Probability: 3.14%
+  -> Risk Level:        Low
+-----------------------------------------------------------------
+
+Inference successfully demonstrated!
+```
+
+---
+
+### Option C: Run the Jupyter Notebook
+
+Open and inspect the full 27-section training pipeline, visualizations, and clustering:
+```bash
+jupyter notebook Customer_Churn_Analysis.ipynb
+```
+
+---
+
+## 📖 How to Use the Web Application
+
+1. **Review Dashboard KPIs**: Look at the top summary cards showing Total Customers (7,043), Retained (5,174), Churned (1,869), and the Overall Churn Rate (26.54%).
+2. **Enter Customer Information**:
+   - Use the dropdowns, range slider, and numerical inputs to configure customer attributes.
+   - Or click **"⚡ Load High-Risk Sample"** or **"🛡️ Load Low-Risk Sample"** for quick 1-click testing.
+3. **Click "PREDICT CHURN"**:
+   - The application securely sends the payload to `/api/predict`.
+   - The backend encodes the attributes into the exact 30 features expected by `models/model_columns.joblib`.
+   - The Random Forest model computes the churn probability.
+4. **Inspect the Result Card**:
+   - **Prediction Banner**: Displays either `HIGH RISK - CUSTOMER MAY CHURN`, `MEDIUM RISK`, or `LOW RISK - CUSTOMER LIKELY RETAINED`.
+   - **Probability Bar**: Shows exact probability percentage.
+   - **Why this customer is at risk**: Detailed evidence points explaining the prediction.
+   - **Recommended Actions**: Clear business retention actions tailored to the customer.
+5. **View Prediction History**: Scroll to the Prediction History table to compare multiple evaluations across your session.
+6. **Explore Analytics**: Check the interactive charts to see how contracts, payment methods, internet services, and tenure impact churn across the whole dataset.
+
+---
+
+## 🔍 Example Predictions
+
+### Profile A: At-Risk Customer
+- **Attributes**: Month-to-month contract, tenure = 2 months, Monthly Charges = $95.00, Fiber Optic, Electronic Check, no Tech Support.
+- **Model Output**:
+  - **Prediction**: `HIGH RISK - CUSTOMER MAY CHURN`
+  - **Probability**: `68.17%` (High Risk)
+  - **Recommended Action**: Offer a 15-20% discount on an annual contract and provide a free trial of Premium Tech Support.
+
+### Profile B: Loyal Customer
+- **Attributes**: Two-year contract, tenure = 60 months, Monthly Charges = $45.00, DSL, Credit Card Auto-pay, Tech Support and Online Security active.
+- **Model Output**:
+  - **Prediction**: `LOW RISK - CUSTOMER LIKELY RETAINED`
+  - **Probability**: `3.14%` (Low Risk)
+  - **Recommended Action**: Enroll in VIP loyalty rewards and offer early access to service upgrades.
+
+---
+
+## 🔮 Future Enhancements
+
+1. **Customer Database Integration**: Connect to PostgreSQL or MongoDB to automatically score customer profiles on a scheduled daily batch job.
+2. **Explainability with SHAP / LIME**: Add interactive waterfall charts showing individual feature contributions per customer.
+3. **Automated Retention Triggers**: Webhook integration with CRM platforms (e.g., HubSpot, Salesforce) to auto-dispatch retention emails or discount codes when probability exceeds 60%.
+4. **Hyperparameter Tuning**: Explore XGBoost, LightGBM, and CatBoost with Bayesian optimization for additional accuracy gains.
